@@ -4,7 +4,7 @@ Implementation and validation of several algorithms to optimise the collection o
 
 ---------------------------------
 
-#### Contributions and Acknowledgment
+### Contributions and Acknowledgment
 
 This work comes from a collaboration between University of Modena and University of Campania "Luigi Vanvitelli".
 
@@ -13,5 +13,5 @@ This work comes from a collaboration between University of Modena and University
 **Code corresponding author:** Mattia Neroni, Ph.D., Eng. (mneroni@unimore.it)
 
 ----------------------------------
-#### Reference
+### Reference
 Neroni, M., & Rinaldi, M. (Under review). Multi-Source Team Orienteering Problem in the Dairy Sector, *Production Planning and Control*. 
