@@ -26,7 +26,7 @@ import opt
 
 if __name__ == '__main__':
 
-    problem = utils.read_multi_source('g12_2_c.txt')
+    problem = utils.read_multi_source('g12_4_k.txt')
 
     problem.Tmax *= 4
     for source in problem.sources:
@@ -39,11 +39,12 @@ if __name__ == '__main__':
 
     #print("Execution time: ", time.time() - _start)
 
-    #
-    for route in routes:
-        opt.OPT2(route, problem.dists)
+    utils.plot(problem, routes=routes)
+
+    routes, cost = opt.allOPT2(routes, problem.dists)
+
+    utils.plot(problem, routes=optimized_routes)
 
 
-    #utils.plot(problem, routes=routes)
 
     print("Program concluded \u2764\uFE0F")

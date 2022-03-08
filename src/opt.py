@@ -53,10 +53,7 @@ def _fast_get_cost (swap, route, solution, current_cost, dists):
     """
     sol = [route.source] + solution + [route.depot]
     i, j = swap
-    A = sol[i].id
-    B = sol[i + 1].id
-    C = sol[j].id
-    D = sol[j + 1].id
+    A, B, C, D = sol[i].id, sol[i + 1].id, sol[j].id, sol[j + 1].id
     return current_cost - dists[A, B] - dists[C, D] + dists[A, C] + dists[B, D]
 
 
@@ -74,17 +71,36 @@ def OPT2 (route, dists):
     while i < L - 1:
         j = i + 2
         while j < L + 1:
-            #new_solution = solution[:i] + list(reversed(solution[i:j])) + solution[j:]
+            #_new_solution = solution[:i] + list(reversed(solution[i:j])) + solution[j:]
+            #_new_cost =_get_cost(route, _new_solution, dists)
             # No need to generate in this moment the new solution
             new_cost = _fast_get_cost((i,j), route, solution, cost, dists)
-            j += 1
 
             if new_cost < cost:
                 solution = solution[:i] + list(reversed(solution[i:j])) + solution[j:]
                 cost = new_cost
-                i, j = 0, 2
+                i, j = 0, 1
+            j += 1
         i += 1
 
     route.nodes = collections.deque(solution)
     route.cost = cost
     return route, cost
+
+
+def allOPT2 (routes, dists):
+    """
+    A simpler way to make the 2-OPT optimization on all
+    the provided routes.
+
+    :param routes: The routes to optimize.
+    :param dists: The matrix of distances
+    :return: The optimised routes and the overall respective cost.
+    """
+    optimized_routes = [None] * len(routes)
+    total_cost = 0
+    for i, route in enumerate(routes):
+        oproute, cost = OPT2(route, dists)
+        optimized_routes[i] = oproute
+        total_cost += cost
+    return optimized_routes
