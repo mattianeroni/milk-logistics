@@ -18,8 +18,12 @@ Date: January 2022
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 """
 import operator
-import grasp
+import numpy as np
+import collections
+import itertools
 
+import grasp
+from route import Route
 
 
 def _reset_assignment (node):
@@ -74,46 +78,120 @@ def mapper (problem, *, bra=False, beta=0.3):
         else:
             vehicle.preferences = _selector(grasp.BRA(sorted(zip(marginal_dists, nodes), key=operator.itemgetter(0)), beta=beta))
 
-    """
-    # Assign nodes to sources
-    # Init the number of nodes already assigned and the mapping matrix
-    n_assigned = 0
-    mapping = np.zeros((n_sources, n_sources + n_nodes))
-    _null_element = object()
-    # NOTE: Until nodes are not concluded a source at each turn pick a number of preferred
-    # nodes that depend on the number of vehicles it has.
-    for source in itertools.islice(itertools.cycle(sources), n_nodes):
-        # Consider the preferences of the currently considered source
-        preferences = source.preferences
-        # Pick a number of preferences that depend on the number of vehicles
-        # that start from the source.
-        for _ in range(source.vehicles):
-            # Pick a node
-            picked_node = next(preferences, _null_element)
-            # If the generator is exhausted exit the loop
-            if picked_node is _null_element:
-                break
-            # Assign the node to the source
-            source.nodes.append(picked_node)
-            picked_node.assigned = True
-            mapping[source.id, picked_node.id] = 1
-            n_assigned += 1
-
-        # If all the nodes have already been assigned we exit the loop
-        if n_assigned == n_nodes:
+    # Init the assignment of customers to vehicles (i.e., mapping)
+    mapping = np.zeros((n_vehicles, n_sources + n_nodes))
+    # Until nodes are not concluded a vehicle at each turn pick a node.
+    for vehicle in itertools.islice(itertools.cycle(vehicles), n_nodes):
+        # Pick a node
+        picked_node = next(vehicle.preferences, None)
+        # If the generator is exhausted exit the loop
+        # NOTE: We should never reach this point
+        if picked_node is None:
             break
-    """
+        # Assign the node to the vehicle
+        vehicle.nodes.append(picked_node)
+        vehicle.copies += 1
+        picked_node.assigned = True
+        mapping[vehicle.id, picked_node.id] = 1
+    # return the mapping
+    return mapping
 
 
 
-def heuristic (problem, *, bra=False, beta=0.3):
+def heuristic (problem, mapping, *, bra=False, beta=0.3):
     """
     Implementation of a savings based heuristic inspired by the Clarke & Wright savings.
 
     :param problem: The instance of the problem to solve.
+    :param mapping: The mapping obtained.
     :param bra: True if the biased randomisation is used, False otherwise.
     :param beta: The parameter of the quasi geometric distribution used in the biased randomisation.
     """
+    depot, edges, dists = problem.depot, problem.edges, problem.dists
+    sources, Tmax = problem.sources, problem.Tmax
 
+    # Init the total set of routes an the total cost
+    all_routes, total_distance = [], 0
 
-    #sorted_edges = sorted(problem.edges, key=lambda i: i.savings[], reverse=True)
+    # For each source a kind of PJS algorithm is done
+    for source in sources:
+
+        # Initialise the set of routes starting from the considered source
+        # and the inteested customers assigned during the mapping process
+        routes, nodes = [], []
+
+        n_vehicles = len(source.vehicles)
+
+        # Initialise the dummy solution
+        for vehicle in source.vehicles:
+            vehicle.copies = 0
+            for node in vehicle.nodes:
+                route = Route(source, depot, vehicle)
+                route.nodes.append(node)
+                node.route = route
+                node.link_left = True
+                node.link_right = True
+                node.from_source = dists[source.id, node.id]
+                node.to_depot = dists[node.id, depot.id]
+                route.qty = node.qty
+                route.cost = node.from_source + node.to_depot
+                vehicle.copies += 1
+                nodes.append(node)
+                routes.append(route)
+
+        nodes = set(nodes)
+        # Sort edges that characterise
+        sorted_edges = sorted(
+            [edge for edge in problem.edges if edge.inode in nodes and edge.jnode in nodes],
+            key=lambda i: i.savings[source.id],
+            reverse=True
+        )
+
+        # Init edges iterator
+        edges_iterator = iter(sorted_edges) if not bra else grasp.BRA(sorted_edges, beta=beta)
+
+        # Merging process
+        for edge in edges_iterator:
+            # Extract interested nodes and routes
+            inode, jnode = edge.inode, edge.jnode
+            iroute, jroute = inode.route, jnode.route
+
+            # The edge must merge two different routes
+            if iroute == jroute:
+                continue
+
+            # The second vehicle should not be deleted
+            if jroute.vehicle.copies == 1:
+                continue
+
+            # First node must be linked to depot and second node to source
+            if not inode.link_right or not jnode.link_left:
+                continue
+
+            # Check capacity of vehicles
+            if iroute.qty + jroute.qty > iroute.vehicle.capacity:
+                continue
+
+            # Check length of route
+            if iroute.cost + jroute.cost + edge.cost - inode.to_depot - jnode.from_source > Tmax:
+                continue
+
+            # Merge the routes
+            iroute.qty += jroute.qty
+            iroute.cost += edge.cost + jroute.cost - inode.to_depot - jnode.from_source
+            iroute.nodes.extend(jroute.nodes)
+            jnode.link_left = False
+            inode.link_right = False
+            jroute.vehicle.copies -= 1
+            routes.remove(jroute)
+            for node in jroute.nodes:
+                node.route = iroute
+
+            # if the number of routes is equal to the number of vehicles exits the merging process
+            if len(routes) == n_vehicles:
+                all_routes.extend(routes)
+                total_distance += sum(r.cost for r in routes)
+                break
+
+    # return routes and their cost
+    return tuple(all_routes), total_distance

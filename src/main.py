@@ -21,6 +21,7 @@ import time
 import utils
 
 import nearest_neighbour
+import pjs
 import opt
 
 
@@ -33,17 +34,27 @@ if __name__ == '__main__':
         for vehicle in source.vehicles:
             vehicle.capacity *= 4
 
-    #_start = time.time()
+    _start = time.time()
 
-    routes, cost = nearest_neighbour.multistart(problem, maxiter=2000, n=3)
+    routes, cost = nearest_neighbour.heuristic(problem)
+    #routes, cost = nearest_neighbour.multistart(problem, maxiter=2000, n=3)
 
-    #print("Execution time: ", time.time() - _start)
+    print("Execution time: ", time.time() - _start)
+    print("Total distance: ", cost)
+
+    _start = time.time()
+
+    mapping = pjs.mapper(problem)
+    routes, cost = pjs.heuristic(problem, mapping)
+
+    print("Execution time: ", time.time() - _start)
+    print("Total distance: ", cost)
 
     utils.plot(problem, routes=routes)
 
-    routes, cost = opt.allOPT2(routes, problem.dists)
+    #routes, cost = opt.allOPT2(routes, problem.dists)
 
-    utils.plot(problem, routes=optimized_routes)
+    #utils.plot(problem, routes=optimized_routes)
 
 
 

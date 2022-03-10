@@ -41,3 +41,4 @@ class Vehicle:
         # Attributes used by the savings based algorithm
         self.preferences = collections.deque()
         self.nodes = collections.deque()
+        self.copies = -1

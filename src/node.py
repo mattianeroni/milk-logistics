@@ -47,14 +47,11 @@ class Node:
 
         # Attributes used by savings based heuristic
         self.assigned = False
-
-
-        # Attributes used by the PJS
-        #self.from_source = 0
-        #self.to_depot = 0
-        #self.route = None
-        #self.link_left = False
-        #self.link_right = False
+        self.from_source = 0
+        self.to_depot = 0
+        self.route = None
+        self.link_left = False
+        self.link_right = False
 
     @property
     def n_vehicles (self):
