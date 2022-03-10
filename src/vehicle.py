@@ -17,6 +17,7 @@ Contact: mneroni@unimore.it
 Date: January 2022
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 """
+import collections
 
 
 class Vehicle:
@@ -33,5 +34,10 @@ class Vehicle:
         """
         self.id = id
         self.capacity = capacity
+
         # Attributes used by nearest neighbour algorithm
         self.cnode = -1
+
+        # Attributes used by the savings based algorithm
+        self.preferences = collections.deque()
+        self.nodes = collections.deque()

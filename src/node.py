@@ -17,7 +17,7 @@ Contact: mneroni@unimore.it
 Date: January 2022
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 """
-import collections
+
 
 class Node:
     """
@@ -45,10 +45,9 @@ class Node:
         self.issource = issource
         self.isdepot = isdepot
 
-        # Attributes used by nearest neighbour
-        #self.assigned = False
-        #self.preferences = collections.deque()
-        #self.nodes = collections.deque()
+        # Attributes used by savings based heuristic
+        self.assigned = False
+
 
         # Attributes used by the PJS
         #self.from_source = 0
