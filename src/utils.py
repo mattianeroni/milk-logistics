@@ -38,8 +38,9 @@ multi_source_benchmarks = tuple(os.listdir("../tests/multi/"))
 
 # Default colors for nodes, source nodes, adn depot
 NODES_COLOR = '#FDDD71'
-SOURCES_COLORS = ('#8FDDF4', '#8DD631', '#A5A5A5', '#DB35EF', '#8153AB')
+SOURCES_COLORS = ('#8FDDF4', '#8DD631', '#A5A5A5', '#DB35EF', '#8153AB', '#FFCC66', '#ff3399', '#3333ff')
 DEPOT_COLOR = '#F78181'
+VEHICLES_COLORS = ("40", "50", "60", "70", "80")
 
 
 
@@ -159,6 +160,7 @@ def plot (problem, *, routes=tuple(), mapping=None, figsize=(6,4), title=None):
     colors, pos = [], {}
     G = nx.DiGraph()
     source_id = 0
+    n_sources = len(problem.sources)
 
     for node in problem.iternodes():
         # Compile the graph
@@ -175,10 +177,13 @@ def plot (problem, *, routes=tuple(), mapping=None, figsize=(6,4), title=None):
             if mapping is None:
                 colors.append(NODES_COLOR)
             else:
-                for i in range(len(problem.sources)):
-                    if mapping[i, node.id] == 1:
-                        colors.append(SOURCES_COLORS[i] + "60")
-                        break
+                n_vehicle = 0
+                for i, source in enumerate(problem.sources):
+                    for j in range(len(source.vehicles)):
+                        n_vehicle += 1
+                        if mapping[n_vehicle - 1, node.id] == 1:
+                            colors.append(SOURCES_COLORS[i] + VEHICLES_COLORS[j])
+                            break
 
     # Save the routes
     edges = []

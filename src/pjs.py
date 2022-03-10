@@ -90,7 +90,6 @@ def mapper (problem, *, bra=False, beta=0.3):
             break
         # Assign the node to the vehicle
         vehicle.nodes.append(picked_node)
-        vehicle.copies += 1
         picked_node.assigned = True
         mapping[vehicle.id, picked_node.id] = 1
     # return the mapping
@@ -106,6 +105,7 @@ def heuristic (problem, mapping, *, bra=False, beta=0.3):
     :param mapping: The mapping obtained.
     :param bra: True if the biased randomisation is used, False otherwise.
     :param beta: The parameter of the quasi geometric distribution used in the biased randomisation.
+    :return: The routes and the overall distance made by vehicles.
     """
     depot, edges, dists = problem.depot, problem.edges, problem.dists
     sources, Tmax = problem.sources, problem.Tmax
@@ -195,3 +195,4 @@ def heuristic (problem, mapping, *, bra=False, beta=0.3):
 
     # return routes and their cost
     return tuple(all_routes), total_distance
+

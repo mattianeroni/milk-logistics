@@ -17,6 +17,7 @@ Contact: mneroni@unimore.it
 Date: January 2022
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 """
+import os
 import time
 import utils
 
@@ -34,14 +35,19 @@ if __name__ == '__main__':
         for vehicle in source.vehicles:
             vehicle.capacity *= 4
 
-    _start = time.time()
 
-    routes, cost = nearest_neighbour.heuristic(problem)
+    # NEAREST NEIGHBOUR
+    #_start = time.time()
+
+    #routes, cost = nearest_neighbour.heuristic(problem)
     #routes, cost = nearest_neighbour.multistart(problem, maxiter=2000, n=3)
 
-    print("Execution time: ", time.time() - _start)
-    print("Total distance: ", cost)
+    #print("Execution time: ", time.time() - _start)
+    #print("Total distance: ", cost)
 
+
+
+    # PJS
     _start = time.time()
 
     mapping = pjs.mapper(problem)
@@ -50,8 +56,9 @@ if __name__ == '__main__':
     print("Execution time: ", time.time() - _start)
     print("Total distance: ", cost)
 
-    utils.plot(problem, routes=routes)
+    utils.plot(problem, routes=routes, mapping=mapping)
 
+    # 2-OPT
     #routes, cost = opt.allOPT2(routes, problem.dists)
 
     #utils.plot(problem, routes=optimized_routes)
