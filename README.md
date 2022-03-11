@@ -14,4 +14,4 @@ This work comes from a collaboration between University of Modena and University
 
 ----------------------------------
 ### Reference
-Neroni, M., & Rinaldi, M. (Under review). Multi-Source Team Orienteering Problem in the Dairy Sector, *Production Planning and Control*. 
+Neroni, M., & Rinaldi, M. (*On going*). Multi-Source Team Orienteering Problem in the Dairy Sector. 
