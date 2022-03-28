@@ -18,6 +18,7 @@ Date: January 2022
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 """
 import itertools
+import random
 
 from grasp import GRASP, BRA
 from route import Route
@@ -48,7 +49,7 @@ def _check_inclusion (problem, node, vehicle, route, dists):
 
 
 
-def _nearest_node (problem, vehicle, route, nodes, dists, *, grasp=False, n=5):
+def _nearest_node (problem, vehicle, route, nodes, dists, *, bra=False, beta=0.3):
     """
     This method returns the nearest node for a given vehicle.
 
@@ -57,19 +58,21 @@ def _nearest_node (problem, vehicle, route, nodes, dists, *, grasp=False, n=5):
     :param route: The route the vehicle is taking care of.
     :param nodes: The options.
     :param dists: The matrix of distances.
+    :param bra: True if a biased randomisation is used.
+    :param beta: The parameter of the quasi-geometric function in the biased randomisation.
     :return: The nearest node.
     """
     cnode = vehicle.cnode
     sorted_nodes = sorted(nodes, key=lambda i: dists[cnode, i.id])
 
     # Greedy selection
-    if not grasp:
+    if not bra:
         for node in sorted_nodes:
             if _check_inclusion(problem, node, vehicle, route, dists):
                 return node, True
 
-    # GRASP selection
-    for node in GRASP(sorted_nodes, n):
+    # BRA selection
+    for node in BRA(sorted_nodes, beta):
         if _check_inclusion(problem, node, vehicle, route, dists):
             return node, True
 
@@ -78,13 +81,13 @@ def _nearest_node (problem, vehicle, route, nodes, dists, *, grasp=False, n=5):
 
 
 
-def heuristic (problem, *, grasp=False, n=5):
+def heuristic (problem, *, bra=False, beta=0.3):
     """
     This method is the heuristic implementation of the nearest neighbour algorithm.
 
     :param problem: The instance of the problem to solve.
-    :param grasp: True if the GRASP randomisation is introduced, False otherwise.
-    :param n: The number of elements of which the grasp randomisation is done.
+    :param bra: True if the biased randomisation is introduced, False otherwise.
+    :param beta: The parameter of the biased randomisation.
     :return: The solution as a tuple of routes, and the total cost of the solution.
     """
     depot, dists, n_vehicles = problem.depot, problem.dists, problem.n_vehicles
@@ -106,7 +109,7 @@ def heuristic (problem, *, grasp=False, n=5):
         if i < n_vehicles:
             vehicle.cnode = route.source.id
 
-        node, done = _nearest_node(problem, vehicle, route, nodes, dists, grasp=grasp, n=n)
+        node, done = _nearest_node(problem, vehicle, route, nodes, dists, bra=bra, beta=beta)
 
         if done:
             route.nodes.append(node)
@@ -132,21 +135,25 @@ def heuristic (problem, *, grasp=False, n=5):
 
 
 
-def multistart (problem, maxiter=1000, n=5):
+def multistart (problem, maxiter=1000, beta=(0.1, 0.3)):
     """
     This method is a multistart implementation of the nearest neighbour algorithm.
 
     :param maxiter: The number of solutions explored.
-    :param n: The dimension of the GRASP.
+    :param beta: The range of the beta parameter for the biased randomisation.
     :return: The solution as a tuple of routes, and the total cost of the solution.
     """
     # Generate a starting greedy solution
     routes, cost = heuristic(problem)
 
+    betamin, betamax = beta 
+
     for _ in range(maxiter):
+        # randomly generate a beta in the specified range 
+        beta = random.uniform(betamin, betamax)
 
         # Generate a new solution from scratch using the GRASP randomisation
-        newroutes, newcost = heuristic(problem, grasp=True, n=n)
+        newroutes, newcost = heuristic(problem, bra=True, beta=beta)
 
         # If the new solution is better, the best solution is updated
         if newcost < cost:

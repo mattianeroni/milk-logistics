@@ -103,4 +103,4 @@ def allOPT2 (routes, dists):
         oproute, cost = OPT2(route, dists)
         optimized_routes[i] = oproute
         total_cost += cost
-    return optimized_routes
+    return optimized_routes, total_cost

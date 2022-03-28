@@ -196,3 +196,44 @@ def heuristic (problem, mapping, *, bra=False, beta=0.3):
     # return routes and their cost
     return tuple(all_routes), total_distance
 
+
+
+def multistart (problem, *, maxiter=1000, bra=(False, False), betarange = ((0.1, 0.3), (0.1, 0.3))):
+    """
+    This is a multistart implementatio on the savings based heuristic 
+    that makes use of biased randomisation.
+    It is possible to implement the BRA both in the mapping as in the 
+    savings-based heuristic.
+
+    :param problem: The problem to solve.
+    :param maxiter: The numebr of solutions explored.
+    :param bra: True if the biased randomisation is used, False otherwise.
+    :param betarange: The betaranges for the biased randomisation.
+
+    :return: The mapping, the routes found, and the respective cost.
+    """
+    # Move useful variables to the stack
+    mapping_bra, pjs_bra = bra 
+    mapping_range, pjs_range = betarange
+
+    # Initial greedy solution
+    bestmapping = mapper(problem)
+    bestroutes, bestcost = heuristic(problem, bestmapping)
+
+    for _ in range(maxiter):
+
+        # Randomly generate betas
+        betamapper = random.uniform(mapping_range[0], mapping_range[1])
+        betasavings = random.uniform(pjs_range[0], pjs_range[1])
+
+        # Generate new solution
+        mapping = mapper(problem, bra=mapping_bra, beta=betamapper)
+        routes, cost = heuristic(problem, mapping, bra=pjs_bra, beta=betasavings)
+
+        # Eventually update best solution
+        if cost < bestcost:
+            bestmapping, bestroutes, bestcost = mapping, bestroutes, bestcost
+    
+    return bestmapping, bestroutes, bestcost
+
+
