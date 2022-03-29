@@ -135,18 +135,18 @@ def heuristic (problem, *, bra=False, beta=0.3):
 
 
 
-def multistart (problem, maxiter=1000, beta=(0.1, 0.3)):
+def multistart (problem, maxiter=1000, betarange=(0.1, 0.3)):
     """
     This method is a multistart implementation of the nearest neighbour algorithm.
 
     :param maxiter: The number of solutions explored.
-    :param beta: The range of the beta parameter for the biased randomisation.
+    :param betarange: The range of the beta parameter for the biased randomisation.
     :return: The solution as a tuple of routes, and the total cost of the solution.
     """
     # Generate a starting greedy solution
     routes, cost = heuristic(problem)
 
-    betamin, betamax = beta 
+    betamin, betamax = betarange
 
     for _ in range(maxiter):
         # randomly generate a beta in the specified range 

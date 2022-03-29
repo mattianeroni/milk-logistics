@@ -28,40 +28,73 @@ import opt
 
 if __name__ == '__main__':
 
-    problem = utils.read_multi_source('g12_4_k.txt')
 
-    problem.Tmax *= 4
-    for source in problem.sources:
-        for vehicle in source.vehicles:
-            vehicle.capacity *= 4
+    filenames = sorted(os.listdir("../tests/multi/"), key=lambda i: len(i))
 
 
-    # NEAREST NEIGHBOUR
-    #_start = time.time()
+    for filename in filenames:
+        print(filename)
 
-    #routes, cost = nearest_neighbour.heuristic(problem)
-    #routes, cost = nearest_neighbour.multistart(problem, maxiter=2000, n=3)
-
-    #print("Execution time: ", time.time() - _start)
-    #print("Total distance: ", cost)
+        problem = utils.read_multi_source(filename)
 
 
 
-    # PJS
-    _start = time.time()
+        #problem.Tmax *= 4
+        #for source in problem.sources:
+        #    for vehicle in source.vehicles:
+        #        vehicle.capacity *= 4
 
-    mapping = pjs.mapper(problem)
-    routes, cost = pjs.heuristic(problem, mapping)
 
-    print("Execution time: ", time.time() - _start)
-    print("Total distance: ", cost)
 
-    utils.plot(problem, routes=routes, mapping=mapping)
 
-    # 2-OPT
-    #routes, cost = opt.allOPT2(routes, problem.dists)
 
-    #utils.plot(problem, routes=optimized_routes)
+        # NEAREST NEIGHBOUR HEURISTIC
+        #_start = time.time()
+        #nn_routes, nn_cost = nearest_neighbour.heuristic(problem)
+        #nn_duration =  time.time() - _start
+
+
+        # NEAREST NEIGHBOUR MULTISTART
+        #_start = time.time()
+        #nnm_routes, nnm_cost = nearest_neighbour.multistart(problem, maxiter=1000, betarange=(0.1, 0.3))
+        #nnm_duration =  time.time() - _start
+
+
+        # NEAREST NEIGHBOUR MULTISTART + 2-OPT
+        #_start = time.time()
+        #nnm_opt_routes, nnm_opt_cost = opt.allOPT2(nnm_routes, problem.dists)
+        #nnm_opt_duration = time.time() - start + nnm_duration 
+
+
+
+
+        # SAVINGS BASED HEURISTIC 
+        #_start = time.time()
+        #mapping = pjs.mapper(problem)
+        #sv_routes, sv_cost = pjs.heuristic(problem, mapping)
+        #sv_duration = time.time() - _start
+
+        
+
+        # SAVINGS BASED MULTISTART 
+        #_start = time.time()
+        #mapping = pjs.mapper(problem)
+        #svm_routes, svm_cost = pjs.heuristic(problem, mapping)
+        #svm_duration = time.time() - _start
+
+
+
+        # SAVINGS BASED MULTISTART + 2-OPT
+        #_start = time.time()
+        #svm_opt_routes, svm_opt_cost = opt.allOPT2(svm_routes, problem.dists)
+        #svm_opt_duration = time.time() - _start + svm_duration
+        
+        
+        
+        
+        #utils.plot(problem, routes=routes, mapping=mapping)
+
+        break 
 
 
 

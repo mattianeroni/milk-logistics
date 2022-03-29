@@ -7,6 +7,8 @@ import os
 import numpy as np
 import math
 
+import utils
+
 
 
 def _euclidean (inode, jnode):
@@ -21,18 +23,27 @@ def _capacities_to_txt (lst):
 
 
 if __name__ == '__main__':
-    filenames = os.listdir("./TOP/")
+
+    filenames = os.listdir("../tests/TOP/")
 
     for filename in filenames:
+
+        problem = utils.read_single_source(filename, path="../tests/TOP/")
+
+        print(problem)
+
+        """
         with open(f"./TOP/{filename}", "r") as file:
+
             # Read problem parameters
             line1 = next(file)
             line2 = next(file)
-            _ = next(file)
+            line3 = next(file)
             n_nodes = int(line1.replace('\n','').split(' ')[1])
             n_vehicles = int(line2.replace('\n','').split(' ')[1])
-            #_ = float(line3.replace('\n','').split(' ')[1])
+            Tmax = float(line3.replace('\n','').split(' ')[1])
 
+            
             nodes, total_qty = [], 0
             for line in file:
                 node_info = line.split('\t')
@@ -56,3 +67,6 @@ if __name__ == '__main__':
                 outfile.write(f"{n[0]}\t{n[1]}\t{n[2]}\t1\t{_capacities_to_txt(capacity.tolist())}\n")
                 for n in nodes[1:]:
                     outfile.write(f"{n[0]}\t{n[1]}\t{n[2]}\t0\t\n")
+        """
+
+        break
