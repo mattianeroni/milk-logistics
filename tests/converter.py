@@ -28,19 +28,21 @@ if __name__ == '__main__':
         routes, cost = pjs.heuristic(problem, mapping)
 
         # Update problem characteristics
-        Tmax = 0
+        Tmax, maxcap = 0, 0
         for route in routes:
-            vehicle = route.vehicle
-            vehicle.capacity = route.qty 
+            maxcap = max(maxcap, route.qty)
+            #vehicle.capacity =  99999999999 #route.qty
             Tmax = max( Tmax, route.cost )
             #print("after ", id(vehicle),  vehicle.capacity)
-        problem.Tmax = round(Tmax, 2)
+        problem.Tmax = round(Tmax ,  2)
+        for route in routes:
+            route.vehicle.capacity = maxcap
 
 
         #utils.plot(problem, routes=routes, mapping=mapping)
 
         # Export the problem 
-        #utils.export(problem, "../tests/single/")
+        utils.export(problem, "../tests/single/")
     
 
 

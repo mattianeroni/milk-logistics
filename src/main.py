@@ -26,6 +26,20 @@ import pjs
 import opt
 
 
+
+OUTPUTFILE = "Results.csv"
+
+
+# clean output file 
+open(OUTPUTFILE, "w") 
+
+
+def save (string):
+    with open(OUTPUTFILE, "a") as file:
+        file.write(string)
+
+
+
 if __name__ == '__main__':
 
 
@@ -34,6 +48,7 @@ if __name__ == '__main__':
 
     for filename in filenames:
         print(filename)
+        save(f"{filename}, ")
 
         problem = utils.read_multi_source(filename)
 
@@ -43,21 +58,24 @@ if __name__ == '__main__':
         _start = time.time()
         nn_routes, nn_cost = nearest_neighbour.heuristic(problem)
         nn_duration =  time.time() - _start
-        utils.plot(problem, routes=nn_routes)
+        save(f"{int(nn_cost)},{round(nn_duration, 3)},")
+        #utils.plot(problem, routes=nn_routes)
 
 
         # NEAREST NEIGHBOUR MULTISTART
         _start = time.time()
         nnm_routes, nnm_cost = nearest_neighbour.multistart(problem, maxiter=1000, betarange=(0.1, 0.3))
         nnm_duration =  time.time() - _start
-        utils.plot(problem, routes=nnm_routes)
+        save(f"{int(nnm_cost)},{round(nnm_duration, 3)},")
+        #utils.plot(problem, routes=nnm_routes)
 
 
         # NEAREST NEIGHBOUR MULTISTART + 2-OPT
         _start = time.time()
         nnm_opt_routes, nnm_opt_cost = opt.allOPT2(nnm_routes, problem.dists)
-        nnm_opt_duration = time.time() - _start + nnm_duration 
-        utils.plot(problem, routes=nnm_opt_routes)
+        nnm_opt_duration = time.time() - _start + nnm_duration
+        save(f"{int(nnm_opt_cost)},{round(nnm_opt_duration, 3)},") 
+        #utils.plot(problem, routes=nnm_opt_routes)
 
 
 
@@ -66,15 +84,18 @@ if __name__ == '__main__':
         mapping = pjs.mapper(problem)
         sv_routes, sv_cost = pjs.heuristic(problem, mapping)
         sv_duration = time.time() - _start
+        save(f"{int(sv_cost)},{round(sv_duration, 3)},")
         utils.plot(problem, routes=sv_routes, mapping=mapping)
 
         
 
         # SAVINGS BASED MULTISTART 
         _start = time.time()
-        mapping, svm_routes, svm_cost = pjs.multistart(problem, maxiter=1000, bra=(True, True), betarange = ((0.1, 0.3), (0.1, 0.3)))
+        mapping, svm_routes, svm_cost = pjs.multistart(problem, maxiter=1000, bra=(True, True), betarange = ((0.7, 0.9), (0.7, 0.9)))
         svm_duration = time.time() - _start
+        save(f"{int(svm_cost)},{round(svm_duration, 3)},")
         utils.plot(problem, routes=svm_routes, mapping=mapping)
+
 
 
 
@@ -82,11 +103,12 @@ if __name__ == '__main__':
         _start = time.time()
         svm_opt_routes, svm_opt_cost = opt.allOPT2(svm_routes, problem.dists)
         svm_opt_duration = time.time() - _start + svm_duration
-        utils.plot(problem, routes=svm_opt_routes, mapping=mapping)
+        save(f"{int(svm_opt_cost)},{round(svm_opt_duration, 3)},")
+        #utils.plot(problem, routes=svm_opt_routes, mapping=mapping)
         
         
 
-        break 
+        save("\n")
 
 
 

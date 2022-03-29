@@ -81,7 +81,7 @@ def mapper (problem, *, bra=False, beta=0.3):
 
     # Init the assignment of customers to vehicles (i.e., mapping)
     mapping = np.zeros((n_vehicles, n_sources + n_nodes))
-    # Until nodes are not concluded a vehicle at each turn pick a node.
+    # Until nodes are not concluded a vehicle at each turn pick a node
     for vehicle in itertools.islice(itertools.cycle(vehicles), n_nodes):
         # Pick a node
         picked_node = next(vehicle.preferences, None)
@@ -122,6 +122,7 @@ def heuristic (problem, mapping, *, bra=False, beta=0.3):
         routes, nodes = [], []
 
         n_vehicles = len(source.vehicles)
+        
 
         # Initialise the dummy solution
         for vehicle in source.vehicles:
@@ -233,7 +234,7 @@ def multistart (problem, *, maxiter=1000, bra=(True, True), betarange = ((0.1, 0
 
         # Eventually update best solution
         if cost < bestcost:
-            bestmapping, bestroutes, bestcost = mapping, bestroutes, bestcost
+            bestmapping, bestroutes, bestcost = mapping, routes, cost
     
     return bestmapping, bestroutes, bestcost
 

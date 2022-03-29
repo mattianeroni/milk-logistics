@@ -214,7 +214,7 @@ def export (problem, path):
         file.write(f"tmax {problem.Tmax}\n")
 
         for node in problem.iternodes():
-            capacities = "-".join([str(v.capacity) for v in node.vehicles ]) if node.issource else ""
+            capacities = "-".join([str(int(v.capacity)) for v in node.vehicles ]) if node.issource else ""
             file.write(f"{round(node.x, 1)}\t{round(node.y, 1)}\t{node.qty}\t{int(node.issource)}\t{capacities}\n")
 
 
