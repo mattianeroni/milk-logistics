@@ -7,7 +7,7 @@ import pjs
 
 if __name__ == '__main__':
 
-    """
+
     filenames = os.listdir("../tests/single/")
 
     for filename in filenames:
@@ -37,10 +37,11 @@ if __name__ == '__main__':
         problem.Tmax = round(Tmax, 2)
 
 
-        # Export the problem 
-        utils.export(problem, "../tests/single/")
-    """
+        #utils.plot(problem, routes=routes, mapping=mapping)
 
+        # Export the problem 
+        #utils.export(problem, "../tests/single/")
+    
 
 
 
@@ -106,6 +107,8 @@ if __name__ == '__main__':
 
     for name, *filenames in benchmarks:
 
+        print(name)
+
         if filenames[2] == "":
             problem1 = utils.read_single_source(filenames[0])
             problem2 = utils.read_single_source(filenames[1])
@@ -120,3 +123,4 @@ if __name__ == '__main__':
 
             problem = utils.merge(problem1, problem2, problem3, name=name)
             utils.export(problem, "../tests/multi/")
+

@@ -20,6 +20,7 @@ Date: January 2022
 import operator
 import numpy as np
 import collections
+import random
 import itertools
 
 import grasp
@@ -198,7 +199,7 @@ def heuristic (problem, mapping, *, bra=False, beta=0.3):
 
 
 
-def multistart (problem, *, maxiter=1000, bra=(False, False), betarange = ((0.1, 0.3), (0.1, 0.3))):
+def multistart (problem, *, maxiter=1000, bra=(True, True), betarange = ((0.1, 0.3), (0.1, 0.3))):
     """
     This is a multistart implementatio on the savings based heuristic 
     that makes use of biased randomisation.
