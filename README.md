@@ -14,4 +14,4 @@ This work comes from a collaboration between University of Modena and University
 
 ----------------------------------
 ### Reference
-Neroni, M., & Rinaldi, M. (*On going*). Multi-Source Team Orienteering Problem in the Dairy Sector. 
+Neroni, M., & Rinaldi, M. (*On going*). Enhancing the Milk Logistics in the Dairy Sector. 
