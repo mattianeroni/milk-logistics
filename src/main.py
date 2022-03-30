@@ -47,7 +47,7 @@ if __name__ == '__main__':
     filenames = sorted(os.listdir("../tests/multi/"), key=lambda i: len(i))
 
 
-    for filename in filenames[34:]:
+    for filename in filenames[100:]:
         print(filename)
         save(f"{filename}, ")
 
@@ -77,7 +77,7 @@ if __name__ == '__main__':
         
         # NEAREST NEIGHBOUR MULTISTART + 2-OPT
         _start = time.time()
-        nnm_opt_routes, nnm_opt_cost = opt.allOPT2(nnm_routes, problem.dists)
+        nnm_opt_routes, nnm_opt_cost = opt.allOPT2(nnm_routes, problem.dists, maxtime=300)
         nnm_opt_duration = time.time() - _start + nnm_duration
         save(f"{int(nnm_opt_cost)},{round(nnm_opt_duration, 3)},") 
     
@@ -111,7 +111,7 @@ if __name__ == '__main__':
 
         # SAVINGS BASED MULTISTART + 2-OPT
         _start = time.time()
-        svm_opt_routes, svm_opt_cost = opt.allOPT2(svm_routes, problem.dists)
+        svm_opt_routes, svm_opt_cost = opt.allOPT2(svm_routes, problem.dists, maxtime=300)
         svm_opt_duration = time.time() - _start + svm_duration
         save(f"{int(svm_opt_cost)},{round(svm_opt_duration, 3)},")
         #utils.plot(problem, routes=svm_opt_routes, mapping=mapping)

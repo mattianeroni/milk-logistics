@@ -18,6 +18,7 @@ Date: January 2022
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 """
 import collections
+import time 
 
 
 def _get_cost (route, solution, dists):
@@ -57,14 +58,20 @@ def _fast_get_cost (swap, route, solution, current_cost, dists):
     return current_cost - dists[A, B] - dists[C, D] + dists[A, C] + dists[B, D]
 
 
-def OPT2 (route, dists):
+def OPT2 (route, dists, maxtime=float("inf")):
     """
     This method is an implementation of the 2-OPT algorithm.
 
     :param route: The route made by a single vehicle on which the optimisation is made.
     :param dists: The matrix of distances between nodes.
+    :param maxtime: The maximum time the optimization can go on.
     :return: The route optimised, and the new overall distance.
     """
+    # time control 
+    _start = time.time()
+    _ctime = time.time()
+
+    # useful variables
     solution, cost = list(route.nodes), route.cost
     L = len(solution)
     i = 0
@@ -80,6 +87,12 @@ def OPT2 (route, dists):
                 solution = solution[:i] + list(reversed(solution[i:j])) + solution[j:]
                 cost = new_cost
                 i, j = 0, 1
+            
+            # If maxtime is exceeded set the condition to exit the optimization
+            _ctime = time.time()
+            if _ctime - _start > maxtime:
+                i, j = L, L 
+            
             j += 1
         i += 1
 
@@ -88,19 +101,20 @@ def OPT2 (route, dists):
     return route, cost
 
 
-def allOPT2 (routes, dists):
+def allOPT2 (routes, dists, maxtime=float("inf")):
     """
     A simpler way to make the 2-OPT optimization on all
     the provided routes.
 
     :param routes: The routes to optimize.
-    :param dists: The matrix of distances
+    :param dists: The matrix of distances. 
+    :param maxtime: The maximum time the optimization can go on.
     :return: The optimised routes and the overall respective cost.
     """
     optimized_routes = [None] * len(routes)
     total_cost = 0
     for i, route in enumerate(routes):
-        oproute, cost = OPT2(route, dists)
+        oproute, cost = OPT2(route, dists, maxtime)
         optimized_routes[i] = oproute
         total_cost += cost
     return optimized_routes, total_cost
