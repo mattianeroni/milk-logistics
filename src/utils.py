@@ -230,16 +230,16 @@ def read_single_source (filename, path="../tests/single/"):
     """
     with open(path + filename, 'r') as file:
         # Read problem parameters
-        n_nodes = int(next(file).replace('\n','').split(' ')[1])
-        n_vehicles = int(next(file).replace('\n','').split(' ')[1])
-        Tmax = float(next(file).replace('\n','').split(' ')[1])
+        n_nodes = int(next(file).replace('\n','').split('\t')[1])
+        n_vehicles = int(next(file).replace('\n','').split('\t')[1])
+        Tmax = float(next(file).replace('\n','').split('\t')[1])
         # Initialise nodes lists
         sources, nodes, depot = [], [], None
         # Read nodes characteristics
         for i, line in enumerate(file):
             node_info = line.replace('\n', '').split('\t')
             if i == 0:
-                vehicles = tuple(vehicle.Vehicle(j, int(c)) for j, c in enumerate(node_info[4].split("-")))
+                vehicles = tuple(vehicle.Vehicle(j, int(float(c))) for j, c in enumerate(node_info[4].split("-")))
                 # Add a source node
                 sources.append(node.Node(i, float(node_info[0]), float(node_info[1]), int(node_info[2]),
                               issource=True, vehicles=vehicles))
@@ -266,9 +266,9 @@ def read_multi_source (filename, path="../tests/multi/"):
     """
     with open(path + filename, 'r') as file:
         # Read problem parametersn_vehicles
-        n_nodes = int(next(file).replace('\n','').split(' ')[1])
-        n_vehicles = int(next(file).replace('\n','').split(' ')[1])
-        Tmax = float(next(file).replace('\n','').split(' ')[1])
+        n_nodes = int(next(file).replace('\n','').split('\t')[1])
+        n_vehicles = int(next(file).replace('\n','').split('\t')[1])
+        Tmax = float(next(file).replace('\n','').split('\t')[1])
         # Initialise nodes lists
         sources, nodes, depot = [], [], None
         vehicle_id = 0
@@ -283,7 +283,7 @@ def read_multi_source (filename, path="../tests/multi/"):
             if node_info[3] == '1':
                 vehicles = []
                 for capacity in node_info[4].split("-"):
-                    vehicles.append(vehicle.Vehicle(vehicle_id, int(capacity)))
+                    vehicles.append(vehicle.Vehicle(vehicle_id, int(float(capacity))))
                     vehicle_id += 1
 
                 sources.append(node.Node(i, float(node_info[0]), float(node_info[1]), int(node_info[2]),
