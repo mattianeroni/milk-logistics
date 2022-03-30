@@ -1,8 +1,7 @@
 import os
-
-#import utils
-#import pjs 
-
+import itertools
+import collections
+import utils 
 
 
 if __name__ == '__main__':
@@ -10,7 +9,7 @@ if __name__ == '__main__':
     filenames = os.listdir("../tests/single/")
 
     for filename in filenames:
-        print(filename)
+        #print(filename)
 
         lines = []
         m = 0
@@ -29,7 +28,7 @@ if __name__ == '__main__':
                     revenue = int(line.replace("\n", "").replace(" ", "\t").split("\t")[2])
                     total_revenue += revenue
 
-        revenue = int( (total_revenue / m) * 1.2 ) + 1
+        revenue = int( (total_revenue / m) * 5 ) + 1
         revstring = "-".join([str(revenue) for _ in range(m)]) 
 
         with open("../tests/single2/" + filename, "w") as file:
@@ -49,7 +48,43 @@ if __name__ == '__main__':
                 file.write("\n")
 
 
+    filenames = os.listdir("../tests/single2/")
+    clusters = collections.defaultdict(list)
+    for filename in filenames:
+        clusters[filename[1]].append(filename)
 
+    combinations = []
+    for key, lst in clusters.items():
+        combinations.append( (f"p{key}.2.a.txt", f"p{key}.4.a.txt",) )
+
+    combinations = sorted(combinations)
+
+    for (p1a, p1b), (p2a, p2b) in itertools.combinations(combinations, 2):
+        problem1 = utils.read_single_source(p1a, path="../tests/single2/")
+        problem2 = utils.read_single_source(p2a, path="../tests/single2/")
+        problem = utils.merge(problem1, problem2, name=f"p{p1a[1]}{p2a[1]}_2.txt")
+        utils.export(problem, "../tests/multi/")
+        
+        problem1 = utils.read_single_source(p1b, path="../tests/single2/")
+        problem2 = utils.read_single_source(p2b, path="../tests/single2/")
+        problem = utils.merge(problem1, problem2, name=f"p{p1a[1]}{p2a[1]}_4.txt")
+        utils.export(problem, "../tests/multi/")
+        #utils.plot(problem)
+
+
+    for (p1a, p1b), (p2a, p2b), (p3a, p3b) in itertools.combinations(combinations, 3):
+        problem1 = utils.read_single_source(p1a, path="../tests/single2/")
+        problem2 = utils.read_single_source(p2a, path="../tests/single2/")
+        problem3 = utils.read_single_source(p3a, path="../tests/single2/")
+        problem = utils.merge(problem1, problem2, problem3, name=f"p{p1a[1]}{p2a[1]}{p3a[1]}_2.txt")
+        utils.export(problem, "../tests/multi/")
+        
+        problem1 = utils.read_single_source(p1b, path="../tests/single2/")
+        problem2 = utils.read_single_source(p2b, path="../tests/single2/")
+        problem3 = utils.read_single_source(p3b, path="../tests/single2/")
+        problem = utils.merge(problem1, problem2, problem3, name=f"p{p1a[1]}{p2a[1]}{p3a[1]}_4.txt")
+        utils.export(problem, "../tests/multi/")
+        #utils.plot(problem)
 
 
 

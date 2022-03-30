@@ -230,9 +230,9 @@ def read_single_source (filename, path="../tests/single/"):
     """
     with open(path + filename, 'r') as file:
         # Read problem parameters
-        n_nodes = int(next(file).replace('\n','').split('\t')[1])
-        n_vehicles = int(next(file).replace('\n','').split('\t')[1])
-        Tmax = float(next(file).replace('\n','').split('\t')[1])
+        n_nodes = int(next(file).replace('\n','').replace(" ", "\t").split('\t')[1])
+        n_vehicles = int(next(file).replace('\n','').replace(" ", "\t").split('\t')[1])
+        Tmax = float(next(file).replace('\n','').replace(" ", "\t").split('\t')[1])
         # Initialise nodes lists
         sources, nodes, depot = [], [], None
         # Read nodes characteristics
@@ -266,9 +266,9 @@ def read_multi_source (filename, path="../tests/multi/"):
     """
     with open(path + filename, 'r') as file:
         # Read problem parametersn_vehicles
-        n_nodes = int(next(file).replace('\n','').split('\t')[1])
-        n_vehicles = int(next(file).replace('\n','').split('\t')[1])
-        Tmax = float(next(file).replace('\n','').split('\t')[1])
+        n_nodes = int(next(file).replace('\n','').replace(" ", "\t").split('\t')[1])
+        n_vehicles = int(next(file).replace('\n','').replace(" ", "\t").split('\t')[1])
+        Tmax = float(next(file).replace('\n','').replace(" ", "\t").split('\t')[1])
         # Initialise nodes lists
         sources, nodes, depot = [], [], None
         vehicle_id = 0

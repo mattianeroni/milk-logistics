@@ -191,9 +191,11 @@ def heuristic (problem, mapping, *, bra=False, beta=0.3):
 
             # if the number of routes is equal to the number of vehicles exits the merging process
             if len(routes) == n_vehicles:
-                all_routes.extend(routes)
-                total_distance += sum(r.cost for r in routes)
                 break
+        
+        # update the total set of routes 
+        all_routes.extend(routes)
+        total_distance += sum(r.cost for r in routes)
 
     # return routes and their cost
     return tuple(all_routes), total_distance
