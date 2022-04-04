@@ -24,17 +24,12 @@ import collections
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
+import json
 
 import node
 import edge
 import vehicle
 
-
-# Single-source benchmarks
-single_source_benchmarks = tuple(os.listdir("../tests/single/"))
-
-# Multi-source benchmarks
-multi_source_benchmarks = tuple(os.listdir("../tests/multi/"))
 
 # Default colors for nodes, source nodes, adn depot
 NODES_COLOR = '#FDDD71'
@@ -195,7 +190,7 @@ def plot (problem, *, routes=tuple(), mapping=None, figsize=(6,4), title=None):
         for n1, n2 in zip(nodes[:-1], nodes[1:]):
             edges.append((n1.id, n2.id))
 
-    nx.draw(G, pos=pos, node_color=colors, edgelist=edges, with_labels=True, node_size=100, font_size=6, font_weight="bold")
+    nx.draw(G, node_color=colors, edgelist=edges, with_labels=True, node_size=100, font_size=6, font_weight="bold")
     plt.show()
 
 
@@ -219,46 +214,89 @@ def export (problem, path):
 
 
 
-def read_single_source (filename, path="../tests/single/"):
-    """
-    This method is used to read a single-source Team Orienteering Problem
-    from a file and returns a standard Problem instance.
 
-    :param filename: The name of the file to read.
-    :param path: The path where the file is.
-    :return: The problem instance.
+def read_real_problem (filename, path="../tests/casestudy/"):
     """
+    This method is used to read a real case problem.
+
+    :param filename: The file of delivery quantities to read.
+    :param path: The directory where the file and the json of arcs are.
+    :retun: A instance of problem.
+    """
+    problem = None 
+
     with open(path + filename, 'r') as file:
+
         # Read problem parameters
-        n_nodes = int(next(file).replace('\n','').replace(" ", "\t").split('\t')[1])
-        n_vehicles = int(next(file).replace('\n','').replace(" ", "\t").split('\t')[1])
-        Tmax = float(next(file).replace('\n','').replace(" ", "\t").split('\t')[1])
-        # Initialise nodes lists
+        n_nodes = int(next(file).replace('\n','').split(" ")[1])
+        n_vehicles = int(next(file).replace('\n','').split(" ")[1])
+        Tmax = int(next(file).replace('\n','').split(" ")[1])
+
         sources, nodes, depot = [], [], None
+        vehicle_id = 0
+
         # Read nodes characteristics
         for i, line in enumerate(file):
-            node_info = line.replace('\n', '').split('\t')
-            if i == 0:
-                vehicles = tuple(vehicle.Vehicle(j, int(float(c))) for j, c in enumerate(node_info[4].split("-")))
-                # Add a source node
-                sources.append(node.Node(i, float(node_info[0]), float(node_info[1]), int(node_info[2]),
-                              issource=True, vehicles=vehicles))
-            elif i == n_nodes - 1:
-                # Add the depot
-                depot = node.Node(i, float(node_info[0]), float(node_info[1]), int(node_info[2]), isdepot=True)
-            else:
-                # Add a node to visit
-                nodes.append(node.Node(i, float(node_info[0]), float(node_info[1]), int(node_info[2])))
 
-        # Instantiate and return the problem
-        return Problem(filename, n_nodes, n_vehicles, Tmax, tuple(sources), tuple(nodes), depot)
+            node_info = line.replace('\n', '').split(' ')
+
+            #print(node_info, i, n_nodes - 1)
+
+            # If the node is depot
+            if i == n_nodes - 1:
+                depot = node.Node(i, 0, 0, int(node_info[1]), isdepot=True)
+                continue
+
+            # If the node is source
+            if i < n_nodes - 1 and node_info[1] == '0':
+                vehicles = []
+                for capacity in node_info[2].split("-"):
+                    vehicles.append( vehicle.Vehicle( vehicle_id, int(capacity) ) )
+                    vehicle_id += 1
+
+                sources.append(node.Node(i, 0, 0, int(node_info[1]), issource=True, vehicles=tuple(vehicles)))
+                continue 
+            
+            nodes.append(node.Node(i, 0, 0, int(node_info[1])))
+
+
+        # Instantiate the problem
+        problem = Problem(filename, n_nodes, n_vehicles, Tmax, tuple(sources), tuple(nodes), depot)
+
+
+    # Read the distances 
+    with open(path + "dists.json", "r") as file:
+        d = json.load(file)
+        problem.dists = np.asarray(d["dists"])
+
+
+       
+    # Instantiate edges
+    edges = collections.deque()
+
+    for node1, node2 in itertools.permutations(itertools.chain(sources, nodes, (depot,)), 2):
+        if node1.isdepot or node1.issource or node2.isdepot or node2.issource:
+            continue
+        edges.append(edge.Edge(node1, node2, problem.dists[node1.id, node2.id] ))
+
+    # Compute savings
+    for e in edges:
+        id1, id2 = e.inode.id, e.jnode.id
+        e.savings = { s.id : problem.dists[s.id, id2] + problem.dists[id1, depot.id] - e.cost for s in sources}
+
+    problem.edges = edges 
+
+    return problem     
 
 
 
-def read_multi_source (filename, path="../tests/multi/"):
+
+
+
+def read_benchmark (filename, path="../tests/benchmarks/"):
     """
-    This method is used to read a multi-source Team Orienteering Problem
-    from a file and returns a standard Problem instance.
+    This method is used to read a benchmark problem created by
+    changing the multi-source team orienteering benchmarks.
 
     :param filename: The name of the file to read.
     :param path: The path where the file is.
@@ -294,91 +332,3 @@ def read_multi_source (filename, path="../tests/multi/"):
 
         # Instantiate and return the problem
         return Problem(filename, n_nodes, n_vehicles, Tmax, tuple(sources), tuple(nodes), depot)
-
-
-
-def merge (*problems, name="multisourceproblem.txt", non_negative=False):
-    """
-    This method merges many TOP problem instances to create a
-    multi-source TOP problem instance.
-    None of the starting instances in modified in any way.
-
-    The merging is made translating the problems (starting from
-    the second) on the first one, so that the depots perfectly match.
-
-    :param problems: The problem to merge.
-    :param name: The name given to the new multi-source problem.
-    :param non_negative: If True avoid negative coordinates (it does not have any real impact).
-    :return: A new multi-source problem instance.
-    """
-    # Init name and parameters of the new problem
-    n_sources = sum(len(p.sources) for p in problems)
-    n_nodes = sum(p.n_nodes for p in problems) - (len(problems) - 1)
-    n_vehicles = sum(p.n_vehicles for p in problems)
-    Tmax = max(p.Tmax for p in problems)
-    # Define the depot
-    depot = problems[0].depot.__copy__()
-    # Initialise the idsn_vehicles
-    # NOTE: We want them to be increasing from the sources to the depot (just convention)
-    depot.id = n_nodes - 1
-    source_id, vehicle_id = 0, 0
-    node_id = n_sources
-    # Find the sources and the nodes
-    sources, nodes = [], []
-    for i, problem in enumerate(problems):
-        # Calculate of how much the current problem must be
-        # translated so that its depot match with that of the
-        # other problems.
-        dx = depot.x - problem.depot.x
-        dy = depot.y - problem.depot.y
-        # For each node...
-        for node in problem.iternodes():
-            # If the node is the depot there is no need to consider it
-            if node.isdepot:
-                continue
-            # Make a copy of the node
-            node = node.__copy__()
-            # Translate the node
-            node.x += dx
-            node.y += dy
-            # If the node is a source append it to sources
-            if node.issource:
-                for vehicle in node.vehicles:
-                    vehicle.id = vehicle_id
-                    vehicle_id += 1
-                sources.append(node)
-                node.id = source_id
-                source_id += 1
-                continue
-            # If the node is not a source append it to normal nodes
-            nodes.append(node)
-            node.id = node_id
-            node_id += 1
-    # Eventually translate the graph to avoid negative coordinates
-    if non_negative:
-        minX, minY = float("inf"), float("inf")
-        for node in itertools.chain(sources, nodes, (depot,)):
-            if node.x < minX:
-                minX = node.x
-            if node.y < minY:
-                minY = node.y
-        dx, dy = max(0, 0 - minX), max(0, 0 - minY)
-        if dx > 0 or dy > 0:
-            for node in itertools.chain(sources, nodes, (depot,)):
-                node.x += dx
-                node.y += dy
-
-    return Problem(name, n_nodes, n_vehicles, Tmax, tuple(sources), tuple(nodes), depot)
-
-
-
-
-
-if __name__ == '__main__':
-    problem1 = read_single_source("p1.2.a.txt")
-    plot(problem1)
-    problem2 = read_single_source("p6.2.a.txt")
-    plot(problem2)
-    p = merge(problem1, problem2)
-    plot(p)
-    export(p, "./")
