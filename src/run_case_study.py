@@ -58,23 +58,6 @@ if __name__ == '__main__':
         problem = utils.read_real_problem(filename)
 
 
-        # SAVINGS BASED HEURISTIC 
-        _start = time.time()
-        mapping = pjs.mapper(problem)
-        sv_routes, sv_cost = pjs.heuristic(problem, mapping)
-        sv_duration = time.time() - _start
-        #save(f"{int(sv_cost)},{round(sv_duration, 3)},")
-        #assert len(sv_routes) == problem.n_vehicles
-
-        
-        print(problem.n_vehicles, len(sv_routes))
-        
-        for route in sv_routes:
-            print( route.qty, route.vehicle.capacity, route.vehicle)
-
-
-        break
-
         # NEAREST NEIGHBOUR HEURISTIC
         _start = time.time()
         nn_routes, nn_cost = nearest_neighbour.heuristic(problem)
