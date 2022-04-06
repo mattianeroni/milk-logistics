@@ -27,12 +27,12 @@ import opt
 
 
 # Output file
-#OUTPUTFILE = "../results/ResultsCaseStudy.csv"
+OUTPUTFILE = "../results/ResultsCaseStudy.csv"
 
 
 # Clean output file 
-#open(OUTPUTFILE, "w") 
-
+_f = open(OUTPUTFILE, "w") 
+_f.close()
 
 # Function to write in output file 
 def save (string):
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     for filename in filenames:
 
         print(filename)
-        #save(f"{filename}, ")
+        save(f"{filename}, ")
 
         problem = utils.read_real_problem(filename)
 
@@ -62,23 +62,22 @@ if __name__ == '__main__':
         _start = time.time()
         nn_routes, nn_cost = nearest_neighbour.heuristic(problem)
         nn_duration =  time.time() - _start
-        #save(f"{int(nn_cost)},{round(nn_duration, 3)},")
-        assert len(nn_routes) == problem.n_vehicles
+        save(f"{int(nn_cost)},{round(nn_duration, 3)},")
 
 
         # NEAREST NEIGHBOUR MULTISTART
         _start = time.time()
         nnm_routes, nnm_cost = nearest_neighbour.multistart(problem, maxiter=1000, betarange=(0.1, 0.3))
         nnm_duration =  time.time() - _start
-        #save(f"{int(nnm_cost)},{round(nnm_duration, 3)},")
-        assert len(nnm_routes) == problem.n_vehicles
+        save(f"{int(nnm_cost)},{round(nnm_duration, 3)},")
+        
         
         
         # NEAREST NEIGHBOUR MULTISTART + 2-OPT
         _start = time.time()
         nnm_opt_routes, nnm_opt_cost = opt.allOPT2(nnm_routes, problem.dists, maxtime=300)
         nnm_opt_duration = time.time() - _start + nnm_duration
-        #save(f"{int(nnm_opt_cost)},{round(nnm_opt_duration, 3)},") 
+        save(f"{int(nnm_opt_cost)},{round(nnm_opt_duration, 3)},") 
     
 
 
@@ -88,30 +87,25 @@ if __name__ == '__main__':
         mapping = pjs.mapper(problem)
         sv_routes, sv_cost = pjs.heuristic(problem, mapping)
         sv_duration = time.time() - _start
-        #save(f"{int(sv_cost)},{round(sv_duration, 3)},")
-        assert len(sv_routes) == problem.n_vehicles
-        #print(problem.n_vehicles, len(sv_routes))
-        #utils.plot(problem, routes=sv_routes, mapping=mapping)
+        save(f"{int(sv_cost)},{round(sv_duration, 3)},")
 
 
         # SAVINGS BASED MULTISTART 
         _start = time.time()
         mapping, svm_routes, svm_cost = pjs.multistart(problem, maxiter=1000, bra=(True, True), betarange = ((0.1, 0.3), (0.1, 0.3)))
         svm_duration = time.time() - _start
-        #save(f"{int(svm_cost)},{round(svm_duration, 3)},")
-        assert len(svm_routes) == problem.n_vehicles
-        #print(problem.n_vehicles, len(svm_routes))
-        #utils.plot(problem, routes=svm_routes, mapping=mapping)
+        save(f"{int(svm_cost)},{round(svm_duration, 3)},")
+        
 
 
         # SAVINGS BASED MULTISTART + 2-OPT
         _start = time.time()
         svm_opt_routes, svm_opt_cost = opt.allOPT2(svm_routes, problem.dists, maxtime=300)
         svm_opt_duration = time.time() - _start + svm_duration
-        #save(f"{int(svm_opt_cost)},{round(svm_opt_duration, 3)},")
+        save(f"{int(svm_opt_cost)},{round(svm_opt_duration, 3)},")
         #utils.plot(problem, routes=svm_opt_routes, mapping=mapping)
         
-        #save("\n")
+        save("\n")
         
         
     print("Program concluded \u2764\uFE0F")
