@@ -190,7 +190,7 @@ def plot (problem, *, routes=tuple(), mapping=None, figsize=(6,4), title=None):
         for n1, n2 in zip(nodes[:-1], nodes[1:]):
             edges.append((n1.id, n2.id))
 
-    nx.draw(G, node_color=colors, edgelist=edges, with_labels=True, node_size=100, font_size=6, font_weight="bold")
+    nx.draw(G, pos=pos, node_color=colors, edgelist=edges, with_labels=True, node_size=100, font_size=6, font_weight="bold")
     plt.show()
 
 
