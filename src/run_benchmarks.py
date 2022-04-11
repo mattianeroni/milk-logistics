@@ -47,7 +47,7 @@ if __name__ == '__main__':
     filenames = sorted(os.listdir("../tests/benchmarks/"), key=lambda i: len(i))
 
 
-    for filename in filenames[100:]:
+    for filename in filenames:
         print(filename)
         save(f"{filename}, ")
 
